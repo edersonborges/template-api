@@ -1,43 +1,111 @@
-# Documentação do Projeto em TypeScript com Prisma e PostgreSQL - Padrão Server
 
-Este projeto é uma aplicação web backend desenvolvida em TypeScript, utilizando o Prisma como ORM (Object-Relational Mapping) para interagir com o banco de dados PostgreSQL. O projeto adere à arquitetura MVC (Model-View-Controller), com uma adição de uma camada de serviço para manter a lógica de negócios complexa separada do controller.
+# Template API - Projeto Node.js com TypeScript
 
-## **Linguagem de programação**
+Este projeto é uma API desenvolvida em Node.js com TypeScript, utilizando Prisma como ORM para manipulação de banco de dados e Express como framework para construção das rotas. O projeto está estruturado para facilitar a manutenção e escalabilidade, com separação entre rotas, controladores e serviços.
 
-O projeto é desenvolvido utilizando TypeScript, uma extensão tipada do JavaScript. TypeScript adiciona tipos estáticos ao JavaScript, o que pode facilitar o desenvolvimento e a depuração ao tornar os erros mais previsíveis.
+## Estrutura do Projeto
 
-## **Banco de dados**
+- **src/**: Contém os arquivos principais da aplicação (controladores, serviços, rotas, middlewares).
+  - **controllers/**: Controladores que processam as requisições e retornam respostas.
+  - **services/**: Lógica de negócio da aplicação.
+  - **routes/**: Definições das rotas e sua vinculação aos controladores.
+  - **middlewares/**: Middleware para tratamento de erros e autenticação.
+  - **configs/**: Configurações do projeto (ex: porta, variáveis de ambiente).
+  - **utils/**: Funções utilitárias como validação de dados e gerenciamento de datas.
+- **prisma/**: Configurações e migrações do Prisma para o banco de dados.
+- **swagger_output.json**: Arquivo gerado para documentação da API via Swagger.
+- **package.json**: Gerenciamento de dependências e scripts de execução.
+- **docker-compose.yml**: Arquivo de configuração Docker para criar o ambiente do banco de dados e outras dependências.
 
-O PostgreSQL é utilizado como banco de dados deste projeto. É um poderoso sistema de banco de dados relacional de código aberto com mais de 30 anos de desenvolvimento ativo.
+## Requisitos
 
-## **ORM**
+- **Node.js** (versão especificada no `.nvmrc`)
+- **Docker** (opcional, para executar o banco de dados via Docker Compose)
+- **Prisma** (instalado como dependência no projeto)
 
-Prisma é utilizado como o ORM. Prisma ajuda a mapear os objetos TypeScript para o banco de dados relacional PostgreSQL. Ele oferece uma forma abstrata de interagir com o banco de dados, o que pode simplificar o processo de desenvolvimento e reduzir o potencial para erros.
+## Configuração e Execução
 
-## **Estrutura de Pastas**
+### 1. Clonar o Repositório
 
-A estrutura de pastas segue o padrão MVC, com adições para serviços e middlewares.
+Clone o repositório para sua máquina local:
 
-### **`src/controllers`**
+```bash
+git clone https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO.git
+cd NOME_DO_REPOSITORIO
+```
 
-Esta pasta contém todos os controladores da aplicação. Os controladores são responsáveis por aceitar as requisições, chamar os serviços apropriados para processar essas requisições, e então responder ao cliente.
+### 2. Instalar Dependências
 
-### **`src/services`**
+Instale as dependências do projeto usando npm:
 
-A pasta de serviços contém a lógica de negócios. Quando um controlador recebe uma requisição, ele chamará um ou mais serviços para processar essa requisição. Ao manter a lógica de negócios em serviços, o código fica mais modular e mais fácil de manter.
+```bash
+npm install
+```
 
-### **`src/middlewares`**
+### 3. Configurar Variáveis de Ambiente
 
-Esta pasta contém todos os middlewares da aplicação. Middlewares são funções que têm acesso ao objeto de requisição, ao objeto de resposta e à próxima função do ciclo de requisição-resposta. Eles são utilizados para executar funções como autenticação, registro, tratamento de erros, etc.
+Crie um arquivo `.env` na raiz do projeto com as variáveis de ambiente necessárias. Exemplo:
 
-### **`src/routes`**
+```
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+PORT=5003
+```
 
-A pasta de rotas define as rotas da aplicação, isto é, quais controladores e funções são chamados com base na URL e no método HTTP de uma solicitação.
+### 4. Executar Banco de Dados com Docker (Opcional)
 
-### **`src/server.ts`**
+Se desejar usar o banco de dados via Docker, execute:
 
-Este é o arquivo que inicializa e configura o servidor. Ele importará todas as rotas, configurará os middlewares e iniciará o servidor para escutar em uma porta específica.
+```bash
+docker-compose up -d
+```
 
-## **Conclusão**
+### 5. Gerar a Documentação com Swagger
 
-Esta arquitetura é bem organizada e modular, o que a torna escalável e de fácil manutenção. Utilizando TypeScript, Prisma e PostgreSQL, a aplicação é robusta e flexível para lidar com várias necessidades de negócios.
+Para gerar a documentação Swagger, o projeto já possui um arquivo `swagger_output.json`. Caso você precise regenerar, execute:
+
+```bash
+npm run swagger-autogen
+```
+
+### 6. Rodar as Migrações do Prisma
+
+Antes de executar a aplicação, é importante aplicar as migrações do Prisma para garantir que o banco de dados esteja na estrutura correta:
+
+```bash
+npx prisma migrate dev
+```
+
+### 7. Executar o Projeto
+
+Para rodar o projeto em modo de desenvolvimento:
+
+```bash
+npm run dev
+```
+
+A API estará disponível em `http://localhost:5003`.
+
+### 8. Acessar a Documentação da API
+
+A documentação da API gerada pelo Swagger estará disponível em:
+
+```
+http://localhost:5003/api-docs
+```
+
+## Scripts Disponíveis
+
+- **`npm run dev`**: Executa a aplicação em modo de desenvolvimento com `nodemon`.
+- **`npm run build`**: Compila os arquivos TypeScript para JavaScript.
+- **`npm run start`**: Executa a versão compilada do projeto.
+- **`npm run swagger-autogen`**: Gera a documentação da API no arquivo `swagger_output.json`.
+- **`npm run prisma-generate`**: Gera os clientes Prisma a partir do schema.
+
+## Tecnologias Utilizadas
+
+- **Node.js** e **Express**: Backend da API.
+- **TypeScript**: Tipagem estática para JavaScript.
+- **Prisma**: ORM para banco de dados relacional.
+- **Swagger**: Geração de documentação da API.
+- **Docker**: Ambiente de execução para o banco de dados.
+- **Nodemon**: Ferramenta para desenvolvimento com recarga automática.
