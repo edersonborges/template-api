@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model usuario {
+  id           String   @id @default(uuid()) @map("_id")
+  nome         String
+  data_nasc    DateTime
+  email        String   @unique
+  telefone     String
+  senha        String
+
+  tarefas      tarefas[]
+  rec_senha    rec_senha[]
+  notificacoes notificacoes[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+}
+
+model rec_senha {
+  id          String   @id @default(uuid()) @map("_id")
+  userId      String
+  codigo      Int
+  usado       Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  usuario     usuario  @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+
+model tarefas {
+  id               String    @id @default(uuid()) @map("_id")
+  assunto          String
+  responsavel      String
+  tipo             String
+  data_agendamento DateTime
+  horario          DateTime
+  concluida        Boolean   @default(false)
+  usuarioId        String
+  negociacaoId     String 
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  usuario          usuario   @relation(fields: [usuarioId], references: [id])
+  negociacao       negociacao @relation(fields: [negociacaoId], references: [id]) // Relação com a tabela de negociação
+}
+
+model negociacao {
+  id              String   @id @default(uuid()) @map("_id")
+  nome_cliente    String
+  nome_negociacao String
+  etapa           String
+  status          String
+  primeiro_pgmt   DateTime?
+  periodo         String?
+  ultimo_contato  DateTime?
+  valor_negociado Float
+  concluida       Boolean  @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  contatos        contato_negociacao[]
+  propostas       proposta_negociacao[]
+  tarefas         tarefas[]
+  anotacao     anotacao[]
+}
+
+model contato_negociacao {
+  id              String   @id @default(uuid()) @map("_id")
+  negociacaoId    String
+  nome            String
+  telefone        String
+  email           String
+  data_nasc       DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  negociacao      negociacao @relation(fields: [negociacaoId], references: [id])
+}
+
+model proposta_negociacao {
+  id                 String   @id @default(uuid()) @map("_id")
+  nome_arq           String
+  seguradora         String
+  premio             Float
+  comissao_percentual Float
+  comissao_valor     Float
+  negociacaoId       String
+  negociacao         negociacao @relation(fields: [negociacaoId], references: [id])
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  arquivos           arquivos[] // Relação inversa com o modelo arquivos
+}
+
+model cliente_pf {
+  id              String   @id @default(uuid()) @map("_id")
+  nome            String
+  cpf             String   @unique
+  data_nasc       DateTime
+  sexo            String
+  estado_civil    String
+  email           String   @unique
+  telefone        String
+  profissao       String
+  renda           Float
+  fonte_renda     String
+  estado_saude    String
+  historico_med   String
+  habitos         String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  beneficiarios   beneficiarios[]
+  enderecos       enderecos[]
+  arquivos        arquivos[]
+}
+
+model cliente_pj {
+  id              String   @id @default(uuid()) @map("_id")
+  nome            String
+  nome_resp       String
+  nome_fantasia   String
+  cnpj            String   @unique
+  telefone        String
+  email           String   @unique
+  data_abert      DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  estipulante     estipulante[]
+  enderecos       enderecos[]
+  arquivos        arquivos[]
+}
+
+model estipulante {
+  id             String   @id @default(uuid()) @map("_id")
+  nome           String
+  telefone       String
+  cpf            String   @unique
+  data_nasc      DateTime
+  clientePjId    String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  clientePJ      cliente_pj @relation(fields: [clientePjId], references: [id])
+  beneficiarios  beneficiarios[]  // Relação com beneficiários
+}
+
+model beneficiarios {
+  id             String   @id @default(uuid()) @map("_id")
+  nome           String
+  telefone       String
+  relacao        String
+  percentual     Float
+  estipulanteId  String?  // Relaciona beneficiário com estipulante
+  clientePfId    String?  // Mantemos a relação com cliente PF
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  estipulante    estipulante? @relation(fields: [estipulanteId], references: [id]) // Relação com estipulante
+  clientePF      cliente_pf? @relation(fields: [clientePfId], references: [id])    // Relação com cliente PF
+}
+
+model arquivos {
+  id             String   @id @default(uuid()) @map("_id")
+  tipo           String
+  clientPfId     String?
+  clientPjId     String?
+  propostaId     String?
+  img_key        String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  clientePF      cliente_pf? @relation(fields: [clientPfId], references: [id])
+  clientePJ      cliente_pj? @relation(fields: [clientPjId], references: [id])
+  proposta       proposta_negociacao? @relation(fields: [propostaId], references: [id])
+}
+
+model enderecos {
+  id             String   @id @default(uuid()) @map("_id")
+  cep            String
+  rua            String
+  numero         String
+  cidade         String
+  bairro         String
+  complemento    String?
+  estado         String
+  clientPfId     String?
+  clientPjId     String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  clientePF      cliente_pf? @relation(fields: [clientPfId], references: [id])
+  clientePJ      cliente_pj? @relation(fields: [clientPjId], references: [id])
+}
+
+model seguradoras {
+  id                String   @id @default(uuid()) @map("_id")
+  nome              String
+  cnpj              String   @unique
+  escritorio        String
+  nome_gestor       String
+  telefone_gestor   String
+  email_gestor      String
+  comissao          Float
+  agenciamento      Float
+  tipo_seguro       String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+}
+
+model notificacoes {
+  id                String    @id @default(uuid()) @map("_id")
+  userId            String
+  titulo            String
+  texto             String
+  horario           DateTime
+  enviado           Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  usuario          usuario?    @relation(fields: [userId], references: [id])
+}
+
+model anotacao {
+  id                String    @id @default(uuid()) @map("_id")
+  negociacaoId      String
+  texto             String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  negociacao      negociacao @relation(fields: [negociacaoId], references: [id])
+}
