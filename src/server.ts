@@ -15,6 +15,17 @@ const server = createServer(app);
 app.use(express.json());
 app.use(cors());
 
+// Middleware para logar as requisições
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  
+  res.on('finish', () => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Status: ${res.statusCode}`);
+  });
+
+  next();
+});
+
 // Rota inicial para verificar se o servidor está rodando
 app.get('/', (req: Request, res: Response) => {
   res.send('Server is running');
