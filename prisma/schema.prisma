@@ -15,25 +15,8 @@ model usuario {
   telefone     String
   senha        String
 
-  tarefas      tarefas[]
-  rec_senha    rec_senha[]
-  notificacoes notificacoes[]
-
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 }
 
-model rec_senha {
-  id          String   @id @default(uuid()) @map("_id")
-  userId      String
-  codigo      Int
-  usado       Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
-
-  usuario     usuario  @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-}
